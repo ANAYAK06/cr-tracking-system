@@ -1,14 +1,15 @@
 import React, { useState } from 'react';
 import { useAuth } from '../../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
-import { 
-  FiMenu, 
-  FiUser, 
-  FiLogOut, 
+import {
+  FiMenu,
+  FiUser,
+  FiLogOut,
   FiLock,
-  FiX 
+  FiX
 } from 'react-icons/fi';
 import { toast } from 'react-toastify';
+import appLogo from '../../assets/logo.png';
 
 
 const Navbar = ({ sidebarOpen, setSidebarOpen }) => {
@@ -37,9 +38,10 @@ const Navbar = ({ sidebarOpen, setSidebarOpen }) => {
           >
             {sidebarOpen ? <FiX size={24} /> : <FiMenu size={24} />}
           </button>
-          
+
           <div className="flex items-center space-x-3">
-           <img src="/logo.png" alt="CR Tracking" className="h-10 w-10 rounded-md"  />
+            <img src={appLogo} alt="CR Tracking" className="h-10 w-10 rounded-md"
+               />
             <div className="hidden sm:block">              <h1 className="text-xl font-bold text-gray-900">CR Tracking</h1>
               <p className="text-xs text-gray-500">
                 {user?.userType === 'Admin' && 'Administrator'}
@@ -82,7 +84,7 @@ const Navbar = ({ sidebarOpen, setSidebarOpen }) => {
                       {user?.userType}
                     </span>
                   </div>
-                  
+
                   <div className="py-2">
                     <button
                       onClick={handleChangePassword}
@@ -91,7 +93,7 @@ const Navbar = ({ sidebarOpen, setSidebarOpen }) => {
                       <FiLock size={16} />
                       <span>Change Password</span>
                     </button>
-                    
+
                     <button
                       onClick={handleLogout}
                       className="w-full px-4 py-2 text-left text-sm text-red-600 hover:bg-red-50 flex items-center space-x-2"

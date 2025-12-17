@@ -3,6 +3,7 @@ import { invoiceAPI, crAPI, developerAPI, clientAPI } from '../../api/apiService
 import LoadingSpinner from '../common/LoadingSpinner';
 import StatusBadge from '../common/StatusBadge';
 import Modal from '../common/Modal';
+import InvoicePDFGenerator from './InvoicePDFGenerator';
 import { 
   FiFileText,
   FiDownload,
@@ -33,6 +34,7 @@ const InvoiceManagement = () => {
   const [advanceAmount, setAdvanceAmount] = useState('0');
   const [availableAdvance, setAvailableAdvance] = useState(0);
   const [generating, setGenerating] = useState(false);
+  const [downloadingPDF, setDownloadingPDF] = useState(false);
 
   const statusOptions = ['Generated', 'Sent', 'Partially Paid', 'Paid'];
 
@@ -158,11 +160,40 @@ const InvoiceManagement = () => {
     }
   };
 
-  const handleDownloadPDF = (pdfLink) => {
-    if (pdfLink) {
-      window.open(pdfLink, '_blank');
-    } else {
-      toast.error('PDF not available');
+  const handleDownloadPDF = async (invoice) => {
+    setDownloadingPDF(true);
+    
+    try {
+      // Get full invoice details
+      const invoiceResponse = await invoiceAPI.getById(invoice.Invoice_Number);
+      if (!invoiceResponse.success) {
+        throw new Error('Failed to fetch invoice details');
+      }
+
+      const fullInvoice = invoiceResponse.data;
+
+      // Get developer details
+      const developer = developers.find(d => d.Developer_ID === fullInvoice.Developer_ID);
+      if (!developer) {
+        throw new Error('Developer not found');
+      }
+
+      // Get client details
+      const client = clients.find(c => c.Client_ID === fullInvoice.Client_ID);
+      if (!client) {
+        throw new Error('Client not found');
+      }
+
+      // Generate and download PDF
+      const pdfGenerator = new InvoicePDFGenerator(fullInvoice, developer, client);
+      await pdfGenerator.downloadPDF();
+      
+      toast.success('Invoice PDF downloaded successfully');
+    } catch (error) {
+      console.error('Error generating PDF:', error);
+      toast.error('Failed to generate PDF: ' + error.message);
+    } finally {
+      setDownloadingPDF(false);
     }
   };
 
@@ -382,15 +413,14 @@ const InvoiceManagement = () => {
                           >
                             <FiEye size={18} />
                           </button>
-                          {invoice.PDF_Link && (
-                            <button
-                              onClick={() => handleDownloadPDF(invoice.PDF_Link)}
-                              className="text-green-600 hover:text-green-800"
-                              title="Download PDF"
-                            >
-                              <FiDownload size={18} />
-                            </button>
-                          )}
+                          <button
+                            onClick={() => handleDownloadPDF(invoice)}
+                            className="text-green-600 hover:text-green-800"
+                            title="Download PDF"
+                            disabled={downloadingPDF}
+                          >
+                            <FiDownload size={18} />
+                          </button>
                         </div>
                       </td>
                     </tr>
@@ -591,15 +621,14 @@ const InvoiceManagement = () => {
             {/* Actions */}
             <div className="flex justify-between items-center pt-4 border-t">
               <div>
-                {selectedInvoice.PDF_Link && (
-                  <button
-                    onClick={() => handleDownloadPDF(selectedInvoice.PDF_Link)}
-                    className="btn-primary flex items-center space-x-2"
-                  >
-                    <FiDownload size={18} />
-                    <span>Download PDF</span>
-                  </button>
-                )}
+                <button
+                  onClick={() => handleDownloadPDF(selectedInvoice)}
+                  className="btn-primary flex items-center space-x-2"
+                  disabled={downloadingPDF}
+                >
+                  <FiDownload size={18} />
+                  <span>{downloadingPDF ? 'Generating...' : 'Download PDF'}</span>
+                </button>
               </div>
               
               <div className="flex space-x-2">
@@ -623,6 +652,16 @@ const InvoiceManagement = () => {
             </div>
           </div>
         </Modal>
+      )}
+
+      {/* Loading indicator for PDF generation */}
+      {downloadingPDF && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-lg p-6 flex items-center space-x-3">
+            <LoadingSpinner />
+            <span className="text-gray-700">Generating PDF...</span>
+          </div>
+        </div>
       )}
     </div>
   );
