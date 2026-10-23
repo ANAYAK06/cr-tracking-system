@@ -9,7 +9,7 @@ import {
   FiEye,
   FiAlertCircle
 } from 'react-icons/fi';
-import { formatDate, formatCurrency } from '../../utils/helpers';
+import { formatDate, formatCurrency, sumBy } from '../../utils/helpers';
 import { toast } from 'react-toastify';
 
 const Approvals = () => {
@@ -88,8 +88,8 @@ const Approvals = () => {
     return <LoadingSpinner text="Loading pending approvals..." />;
   }
 
-  const totalEstimated = pendingCRs.reduce((sum, cr) => sum + (cr.Estimated_Amount || 0), 0);
-  const totalHours = pendingCRs.reduce((sum, cr) => sum + (cr.Estimated_Hours || 0), 0);
+  const totalEstimated = sumBy(pendingCRs, 'Estimated_Amount');
+  const totalHours = sumBy(pendingCRs, 'Estimated_Hours');
 
   return (
     <div className="space-y-6">

@@ -13,7 +13,7 @@ import {
   FiClock,
   FiAlertCircle
 } from 'react-icons/fi';
-import { formatDate, formatCurrency, getInputDateFormat } from '../../utils/helpers';
+import { formatDate, formatCurrency, getInputDateFormat, sumBy } from '../../utils/helpers';
 import { toast } from 'react-toastify';
 
 const PaymentManagement = () => {
@@ -235,9 +235,9 @@ const PaymentManagement = () => {
     return <LoadingSpinner text="Loading payments..." />;
   }
 
-  const totalPayments = payments.reduce((sum, p) => sum + (parseFloat(p.Amount_Paid) || 0), 0);
-  const totalAdvances = advances.reduce((sum, a) => sum + (parseFloat(a.Amount) || 0), 0);
-  const pendingAdvances = advances.filter(a => a.Status === 'Pending').reduce((sum, a) => sum + (parseFloat(a.Amount) || 0), 0);
+  const totalPayments = sumBy(payments, 'Amount_Paid');
+  const totalAdvances = sumBy(advances, 'Amount');
+  const pendingAdvances = sumBy(advances.filter(a => a.Status === 'Pending'), 'Amount');
 
   return (
     <div className="space-y-6">

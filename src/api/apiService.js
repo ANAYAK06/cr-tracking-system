@@ -13,8 +13,6 @@ const callAPI = async (action, data = {}) => {
       ...data,
     };
 
-    console.log('API Request:', { action, data }); // Debug log
-
     const response = await fetch(API_BASE_URL, {
       method: 'POST',
       headers: {
@@ -24,14 +22,11 @@ const callAPI = async (action, data = {}) => {
       redirect: 'follow',
     });
 
-    console.log('API Response Status:', response.status); // Debug log
-
     if (!response.ok) {
       throw new Error(`HTTP error! status: ${response.status}`);
     }
 
     const result = await response.json();
-    console.log('API Result:', result); // Debug log
 
     // Show error toast if API returns error
     if (!result.success && result.error) {

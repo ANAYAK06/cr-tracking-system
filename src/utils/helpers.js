@@ -143,11 +143,13 @@ export const daysBetween = (date1, date2) => {
   return Math.round(Math.abs((firstDate - secondDate) / oneDay));
 };
 
-// Check if date is overdue
-export const isOverdue = (targetDate) => {
-  const today = new Date();
+// Check if a target date has passed. A task due today is not overdue until the day is over.
+export const isOverdue = (targetDate, now = new Date()) => {
+  if (!targetDate) return false;
   const target = new Date(targetDate);
-  return target < today;
+  if (Number.isNaN(target.getTime())) return false;
+  const endOfTargetDay = new Date(target.getFullYear(), target.getMonth(), target.getDate(), 23, 59, 59, 999);
+  return endOfTargetDay < now;
 };
 
 // Get input date format (YYYY-MM-DD)
@@ -159,3 +161,13 @@ export const getInputDateFormat = (date) => {
   const day = String(d.getDate()).padStart(2, '0');
   return `${year}-${month}-${day}`;
 };
+// Parse an amount that may arrive as a number or as text (e.g. "1,250.50") from the sheet
+export const toAmount = (value) => {
+  if (typeof value === 'number') return Number.isFinite(value) ? value : 0;
+  const parsed = parseFloat(String(value ?? '').replace(/,/g, ''));
+  return Number.isNaN(parsed) ? 0 : parsed;
+};
+
+// Sum one numeric field across a list of records
+export const sumBy = (items, field) =>
+  (items || []).reduce((sum, item) => sum + toAmount(item?.[field]), 0);
