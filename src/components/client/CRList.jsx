@@ -9,7 +9,7 @@ import {
   FiEye,
   FiCheckCircle
 } from 'react-icons/fi';
-import { formatDate, formatCurrency, isOverdue } from '../../utils/helpers';
+import { formatDate, formatCurrency, isOverdue, sumBy } from '../../utils/helpers';
 import { toast } from 'react-toastify';
 
 const CRList = () => {
@@ -118,7 +118,7 @@ const CRList = () => {
   const completed = crs.filter(cr => 
     ['Closed', 'Billed'].includes(cr.Status)
   ).length;
-  const totalEstimatedAmount = crs.reduce((sum, cr) => sum + (cr.Estimated_Amount || 0), 0);
+  const totalEstimatedAmount = sumBy(crs, 'Estimated_Amount');
 
   return (
     <div className="space-y-6">

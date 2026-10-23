@@ -15,7 +15,7 @@ import {
   FiCheckCircle,
   FiAlertCircle
 } from 'react-icons/fi';
-import { formatDate, formatCurrency } from '../../utils/helpers';
+import { formatDate, formatCurrency, sumBy } from '../../utils/helpers';
 import { toast } from 'react-toastify';
 
 const InvoiceManagement = () => {
@@ -236,8 +236,8 @@ const InvoiceManagement = () => {
 
   const totalGenerated = invoices.filter((inv) => inv.Status === 'Generated').length;
   const totalPaid = invoices.filter((inv) => inv.Status === 'Paid').length;
-  const totalBalance = invoices.reduce((sum, inv) => sum + (parseFloat(inv.Balance_Amount) || 0), 0);
-  const totalInvoiceAmount = invoices.reduce((sum, inv) => sum + (parseFloat(inv.Net_Amount) || 0), 0);
+  const totalBalance = sumBy(invoices, 'Balance_Amount');
+  const totalInvoiceAmount = sumBy(invoices, 'Net_Amount');
 
   return (
     <div className="space-y-6">

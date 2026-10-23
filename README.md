@@ -1,70 +1,59 @@
-# Getting Started with Create React App
+# CR Tracking System
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+A web app for running software change requests (CRs) from request to payment. The admin logs each change request, the developer estimates and delivers it, the client approves the estimate, and the admin invoices the work, deducts TDS and records payments, with each party seeing only their own view.
 
-## Available Scripts
+**Live app:** https://anayak06.github.io/cr-tracking-system (sign-in required)
 
-In the project directory, you can run:
+## How a change request moves
 
-### `npm start`
+```
+Estimation Pending -> Approval Pending -> Approved - In Development -> In Progress
+  -> Under UAT -> In Production -> Ready for Billing -> Billed -> Closed
+                                       (or Rejected)
+```
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+## Roles and screens
 
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
+| Role | What they can do |
+|---|---|
+| **Client** | Follow their CRs, approve or reject estimates, see the total estimated cost and hours |
+| **Developer** | See assigned CRs, enter estimated hours, update progress, follow earnings, invoices, payments and advances |
+| **Admin** | Log CRs and assign developers; manage clients and developers; generate invoices as PDF with the amount in words; record payments and advances; configure TDS rates; reports on outstanding balances |
 
-### `npm test`
+Every signed-in user can change their password. Routes are protected by role (`ProtectedRoute`).
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+## Architecture
 
-### `npm run build`
+```
+React (this repo, GitHub Pages)  --POST JSON-->  Google Apps Script web app  -->  Google Sheets
+```
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+- **Front end:** React 19, React Router, Tailwind CSS. Auth state lives in `AuthContext`; all API calls go through one function in `src/api/apiService.js`, which attaches the session token and shows errors as toasts.
+- **Back end:** a Google Apps Script web app that stores CRs, invoices, payments and users in Google Sheets.
+- **Invoices:** generated in the browser as PDF with jsPDF and html2canvas; amounts in words in Indian English (`to-words`).
+- **Shared helpers:** `src/utils/helpers.js` (currency, dates, overdue checks, totals, validation), covered by unit tests.
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+## Running locally
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+```bash
+npm install
+npm start          # http://localhost:3000
+```
 
-### `npm run eject`
+## Tests
 
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
+```bash
+npm test
+```
 
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+They run on every push and pull request through GitHub Actions.
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
+## Deploying
 
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
+```bash
+npm run deploy     # builds and publishes to GitHub Pages
+```
 
-## Learn More
+## Tech stack
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
-
-To learn React, check out the [React documentation](https://reactjs.org/).
-
-### Code Splitting
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
-
-### Analyzing the Bundle Size
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
-
-### Making a Progressive Web App
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
-
-### Advanced Configuration
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
-
-### Deployment
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
-
-### `npm run build` fails to minify
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+React 19 · React Router · Tailwind CSS · jsPDF · html2canvas · date-fns · Google Apps Script · Google Sheets · Jest · GitHub Actions · GitHub Pages

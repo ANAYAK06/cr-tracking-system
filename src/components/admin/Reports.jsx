@@ -9,7 +9,7 @@ import {
   FiAlertCircle,
   FiCalendar
 } from 'react-icons/fi';
-import { formatCurrency, formatDate } from '../../utils/helpers';
+import { formatCurrency, formatDate, sumBy } from '../../utils/helpers';
 import { toast } from 'react-toastify';
 
 const Reports = () => {
@@ -95,7 +95,7 @@ const Reports = () => {
     return <LoadingSpinner text="Loading reports..." />;
   }
 
-  const totalOutstanding = outstandingPayments.reduce((sum, p) => sum + (p.outstandingBalance || 0), 0);
+  const totalOutstanding = sumBy(outstandingPayments, 'outstandingBalance');
 
   return (
     <div className="space-y-6">
